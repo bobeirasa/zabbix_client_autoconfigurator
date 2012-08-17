@@ -59,7 +59,7 @@ function copyConfigFiles(){
 }
 function createZabbixUser(){
 	id zabbix
-	if [ $? -ne 0]; then
+	if [ $? != 0 ]; then
 		echo "Adding Zabbix User..."
 		useradd zabbix
 		chEC $?
@@ -93,7 +93,7 @@ function startAgent(){
 }
 function showMsg(){
 	if [ $flagFail == "0" ];then
-		echo -e "\033[32mSetup done! You can now monitor this host using Zabbix\033[0m"
+		echo -e "\033[32mSetup done! You can now monitor this host using Zabbix $zabbix_version\033[0m"
 	else
 		echo -e "\033[31mYou got some warnings, please check...\033[0m"
 	fi
