@@ -4,6 +4,25 @@
 VERSION=1.0
 
 flagFail=0
+arch="i686"
+zabbix_version="2.0.0"
+function printUsage(){
+	echo "$0"
+}
+function requestZabbixVersion(){
+	echo -e "Witch version of Zabbix Client do you wanna install?"
+	echo -e "1) 2.0.0 (default)"
+	echo -e "2) 1.8.5"
+	read yn
+	case $yn in
+		[1] )
+			zabbix_version="2.0.0"
+			;;
+		[2] )
+			zabbix_version="1.8.5"
+			;;
+	esac
+}
 function chEC(){
 	if [ $1 == 0 ]; then
 		echo -e "\033[32mOk!\033[0m"
@@ -12,11 +31,14 @@ function chEC(){
 		flagFail=1
 	fi
 }
+function discoverArchitecture(){
+	arch=`uname -p`
+}
 function copyBinaries(){
 	echo "Copying binaries..."
-	cp -fv bin/* /usr/local/bin/
+	cp -fv binaries/$zabbix_version/$arch/bin/* /usr/local/bin/
 	chEC $?
-	cp -fv sbin/* /usr/local/sbin/
+	cp -fv binaries/$zabbix_version/$arch/sbin/* /usr/local/sbin/
 	chEC $?
 }
 function createConfigDir(){
@@ -36,12 +58,12 @@ function copyConfigFiles(){
 	chEC $?
 }
 function createZabbixUser(){
-	echo "Adding Zabbix User..."
-	useradd zabbix
-	chEC $?
-	echo "Adding Zabbix Group..."
-	groupadd zabbix
-	chEC $?
+	id zabbix
+	if [ $? -ne 0]; then
+		echo "Adding Zabbix User..."
+		useradd zabbix
+		chEC $?
+	fi
 }
 function createLogFile(){
 	echo "Creating empty log file..."
@@ -77,6 +99,8 @@ function showMsg(){
 	fi
 }
 function main(){
+	requestZabbixVersion
+	discoverArchitecture
 	copyBinaries
 	createConfigDir
 	addServices
