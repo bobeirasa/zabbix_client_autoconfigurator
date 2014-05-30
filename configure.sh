@@ -5,20 +5,24 @@ VERSION=1.0
 
 flagFail=0
 arch="i686"
-zabbix_version="2.0.0"
+zabbix_version="2.2.1"
 function printUsage(){
 	echo "$0"
 }
 function requestZabbixVersion(){
-	echo -e "Witch version of Zabbix Client do you wanna install?"
-	echo -e "1) 2.0.0 (default)"
+	echo -e "Which version of Zabbix Client do you want to install?"
+	echo -e "1) 2.2.1 (default)"
+	echo -e "1) 2.0.0"
 	echo -e "2) 1.8.5"
 	read yn
 	case $yn in
 		[1] )
-			zabbix_version="2.0.0"
+			zabbix_version="2.2.1"
 			;;
 		[2] )
+			zabbix_version="2.0.0"
+			;;
+		[3] )
 			zabbix_version="1.8.5"
 			;;
 	esac
@@ -98,14 +102,22 @@ function showMsg(){
 		echo -e "\033[31mYou got some warnings, please check...\033[0m"
 	fi
 }
+function changeConfigFiles(){
+	while [[ -z "$ZIP"  ]]; do
+		echo -e "What is the IP of your Zabbix Server?"
+		read ZIP
+	done 
+	sed -i "s/^#Server=/Server='$ZIP'/g" /usr/local/etc/zabbix*.conf
+}
 function main(){
 	requestZabbixVersion
 	discoverArchitecture
+	createZabbixUser
 	copyBinaries
 	createConfigDir
 	addServices
 	copyConfigFiles
-	createZabbixUser
+	changeConfigFiles
 	createLogFile
 	copyInitFiles
 	enableAgentOnBoot
